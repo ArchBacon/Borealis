@@ -28,14 +28,42 @@ struct FHexMetrics
 	};
 };
 
+UENUM()
+enum ETerrainType
+{
+	Ocean,		// 0
+	Coastal,	// 1
+	Grassland,	// 2
+	MAX,		// 3
+};
+
+USTRUCT()
+struct FTerrainTypes : public FTableRowBase
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TEnumAsByte<ETerrainType> Type = Grassland;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UMaterialInterface* Material = nullptr;
+};
+
 USTRUCT(Blueprintable)
 struct FHexCell
 {
 	GENERATED_BODY()
 
-	TArray<FVector> Vertices;
-	TArray<int32> Triangles;
-	FHexMetrics Metrics;
+	TArray<FVector> Vertices {};
+	TArray<int32> Triangles {};
+	FHexMetrics Metrics {};
+
+	UPROPERTY(VisibleAnywhere)
+	FLinearColor Color = FLinearColor::White;
+	UPROPERTY(VisibleAnywhere)
+	FVector Location = FVector::ZeroVector;
+	UPROPERTY(EditAnywhere)
+	TEnumAsByte<ETerrainType> Type = Grassland;
 
 	FHexCell() = default;
 	FHexCell(const FVector& Center)
@@ -53,22 +81,60 @@ struct FHexCell
 			Triangles.Add(VertexIndex + 1);
 		}
 	}
+
+	bool operator ==(const FHexCell& Other) const
+	{
+		return Type == Other.Type;
+	}
 };
+
+inline uint32_t GetTypeHash(const FHexCell& Hex)
+{
+	return FCrc::MemCrc32(&Hex, sizeof(FHexCell));
+}
+
+// template<>
+// struct hash<FHexCell>
+// {
+// 	size_t operator()(const FHexCell& H) const
+// 	{
+// 		const std::hash<int32_t> IntHash;
+// 		const size_t HQ = IntHash(H.Location.X);
+// 		const size_t HR = IntHash(H.Location.X);
+// 		return HQ ^ (HR + 0x9e3779b9 + (HQ << 6) + (HQ >> 2));
+// 	}
+// };
 
 UCLASS()
 class BOREALIS_API AHexGrid : public AActor
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	UProceduralMeshComponent* ProceduralMesh;
 
 	int Width = 6;
 	int Height = 6;
+	float Spacing = 0.f;
+
+	UPROPERTY(VisibleAnywhere)
+	TArray<FHexCell> Cells = {};
+
+	UPROPERTY(VisibleAnywhere)
+	TSet<FHexCell> Map = {};
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	UDataTable* TerrainData = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
+	UMaterialInterface* ActiveMaterial = nullptr;
 	
 public:	
 	AHexGrid();
 
 protected:
 	virtual void BeginPlay() override;
+
+	void ApplyMaterialsToTerrain() const;
+	UMaterialInterface* GetTerrainMaterial(TEnumAsByte<ETerrainType> Type) const;
 };

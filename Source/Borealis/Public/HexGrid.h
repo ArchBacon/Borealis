@@ -56,13 +56,15 @@ struct FHexCell
 
 	TArray<FVector> Vertices {}; // Not public
 	TArray<int32> Triangles {}; // Not public
-	FHexMetrics Metrics {};
 	
 	UPROPERTY(VisibleAnywhere)
 	FVector Location = FVector::ZeroVector;
 	
 	UPROPERTY(VisibleAnywhere)
 	FIntVector HexCoord = FIntVector::ZeroValue;
+	
+	UPROPERTY(VisibleAnywhere)
+	int SectionID = 0;
 	
 	UPROPERTY(EditAnywhere)
 	TEnumAsByte<ETerrainType> Type = Grassland;
@@ -71,6 +73,7 @@ struct FHexCell
 	FHexCell(const FVector& Center)
 		: Location(Center)
 	{
+		FHexMetrics Metrics {};
 		for (int i = 0; i < 6; i++)
 		{
 			int32 VertexIndex = Vertices.Num();
@@ -106,7 +109,7 @@ class BOREALIS_API AHexGrid : public AActor
 	UPROPERTY(VisibleAnywhere)
 	TArray<FHexCell> Cells = {};
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	TMap<int, FHexCell> Map = {};
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))

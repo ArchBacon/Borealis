@@ -26,10 +26,11 @@ AHexGrid::AHexGrid()
 			auto Hex = FHexCell(WorldLocation);
 			Hex.HexCoord = FIntVector(q, r, -q-r);
 			Hex.Type = (TEnumAsByte<ETerrainType>)FMath::RandRange(0, ETerrainType::MAX - 1);
+			Hex.SectionID = i++;
 			
 			Map.Add(FHexCell::Hash(q, r), Hex);
 			
-			UTextRenderComponent* Text = CreateDefaultSubobject<UTextRenderComponent>(*FString::Printf(TEXT("Text Render Component%i"), i));
+			UTextRenderComponent* Text = CreateDefaultSubobject<UTextRenderComponent>(*FString::Printf(TEXT("Text Render Component%i"), Hex.SectionID));
 			Text->Text = FText::FromString(FString::Printf(TEXT("%i\n%i\n%i"), q, r, -q-r));
 			Text->SetRelativeLocation(Hex.Location + FVector(0.0f, 0.0f, 1.0f));
 			Text->SetRelativeRotation({90.f, 90.f, 180.f});
@@ -38,7 +39,7 @@ AHexGrid::AHexGrid()
 			Text->SetupAttachment(ProceduralMesh);
 
 			ProceduralMesh->CreateMeshSection(
-				i++,
+				Hex.SectionID,
 				Hex.Vertices,
 				Hex.Triangles,
 				{},
@@ -69,14 +70,12 @@ void AHexGrid::ApplyMaterialsToTerrain() const
 			auto Result = Map.Find(FHexCell::Hash(q, r));
 			if (!Result)
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Cell [%i, %i] not found"), q, r));
+				GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("Cell [%i, %i] not found."), q, r));
 				continue;
 			}
 			
 			const auto HexCell = *Result;
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, UEnum::GetValueAsString(HexCell.Type));
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, HexCell.HexCoord.ToString());
-			ProceduralMesh->SetMaterial(i++, GetTerrainMaterial(HexCell.Type));
+			ProceduralMesh->SetMaterial(HexCell.SectionID, GetTerrainMaterial(HexCell.Type));
 		}
 	}
 }

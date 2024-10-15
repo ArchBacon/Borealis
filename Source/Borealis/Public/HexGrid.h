@@ -56,9 +56,14 @@ struct FHexCell
 
 	TArray<FVector> Vertices {}; // Not public
 	TArray<int32> Triangles {}; // Not public
+	FHexMetrics Metrics {};
 	
 	UPROPERTY(VisibleAnywhere)
 	FVector Location = FVector::ZeroVector;
+	
+	UPROPERTY(VisibleAnywhere)
+	FIntVector HexCoord = FIntVector::ZeroValue;
+	
 	UPROPERTY(EditAnywhere)
 	TEnumAsByte<ETerrainType> Type = Grassland;
 
@@ -66,7 +71,6 @@ struct FHexCell
 	FHexCell(const FVector& Center)
 		: Location(Center)
 	{
-		FHexMetrics Metrics {};
 		for (int i = 0; i < 6; i++)
 		{
 			int32 VertexIndex = Vertices.Num();
@@ -81,29 +85,11 @@ struct FHexCell
 		}
 	}
 
-	bool operator ==(const FHexCell& Other) const
+	static size_t Hash(const int Q, const int R)
 	{
-		return Type == Other.Type
-		&& Location == Other.Location;
+		return HashCombine(Q, R);
 	}
 };
-
-inline uint32_t GetTypeHash(const FHexCell& Hex)
-{
-	return FCrc::MemCrc32(&Hex, sizeof(FHexCell));
-}
-
-// template<>
-// struct hash<FHexCell>
-// {
-// 	size_t operator()(const FHexCell& H) const
-// 	{
-// 		const std::hash<int32_t> IntHash;
-// 		const size_t HQ = IntHash(H.Location.X);
-// 		const size_t HR = IntHash(H.Location.X);
-// 		return HQ ^ (HR + 0x9e3779b9 + (HQ << 6) + (HQ >> 2));
-// 	}
-// };
 
 UCLASS()
 class BOREALIS_API AHexGrid : public AActor
@@ -121,7 +107,7 @@ class BOREALIS_API AHexGrid : public AActor
 	TArray<FHexCell> Cells = {};
 
 	UPROPERTY(VisibleAnywhere)
-	TSet<FHexCell> Map = {};
+	TMap<int, FHexCell> Map = {};
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	UDataTable* TerrainData = nullptr;

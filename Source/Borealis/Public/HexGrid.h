@@ -7,7 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "HexGrid.generated.h"
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FHexMetrics
 {
 	GENERATED_BODY()
@@ -37,7 +37,7 @@ enum ETerrainType
 	MAX,		// 3
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FTerrainTypes : public FTableRowBase
 {
 	GENERATED_BODY()
@@ -54,12 +54,9 @@ struct FHexCell
 {
 	GENERATED_BODY()
 
-	TArray<FVector> Vertices {};
-	TArray<int32> Triangles {};
-	FHexMetrics Metrics {};
-
-	UPROPERTY(VisibleAnywhere)
-	FLinearColor Color = FLinearColor::White;
+	TArray<FVector> Vertices {}; // Not public
+	TArray<int32> Triangles {}; // Not public
+	
 	UPROPERTY(VisibleAnywhere)
 	FVector Location = FVector::ZeroVector;
 	UPROPERTY(EditAnywhere)
@@ -67,7 +64,9 @@ struct FHexCell
 
 	FHexCell() = default;
 	FHexCell(const FVector& Center)
+		: Location(Center)
 	{
+		FHexMetrics Metrics {};
 		for (int i = 0; i < 6; i++)
 		{
 			int32 VertexIndex = Vertices.Num();
@@ -84,7 +83,8 @@ struct FHexCell
 
 	bool operator ==(const FHexCell& Other) const
 	{
-		return Type == Other.Type;
+		return Type == Other.Type
+		&& Location == Other.Location;
 	}
 };
 

@@ -28,13 +28,13 @@ struct FHexMetrics
 	};
 };
 
-UENUM()
+UENUM(BlueprintType)
 enum ETerrainType
 {
 	Ocean,		// 0
 	Coastal,	// 1
 	Grassland,	// 2
-	MAX,		// 3
+	MAX UMETA(Hidden),
 };
 
 USTRUCT(BlueprintType)
@@ -125,5 +125,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	void ApplyMaterialsToTerrain() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure)
 	UMaterialInterface* GetTerrainMaterial(TEnumAsByte<ETerrainType> Type) const;
 };

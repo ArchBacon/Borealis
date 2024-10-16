@@ -19,5 +19,11 @@ public:
 	static void HexToWorld(FHexCell Hex, FHexMetrics Metrics, FVector& WorldLocation);
 
 	UFUNCTION(BlueprintCallable, Category=Hex)
-	static void WorldToHex(FVector WorldLocation, FHexMetrics Metrics, FHexCell& Hex);
+	static void WorldToHex(FVector WorldLocation, FHexMetrics Metrics, int& OutQ, int& OutR);
+	
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category=Hex)
+	static void MakeS(int Q, int R, int& S);
+	
+	UFUNCTION(BlueprintPure, BlueprintCallable, Category=Hex)
+	static void Hash(const int Q, const int R, int& Hash);
 };

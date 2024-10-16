@@ -49,7 +49,7 @@ struct FTerrainTypes : public FTableRowBase
 	UMaterialInterface* Material = nullptr;
 };
 
-USTRUCT(Blueprintable)
+USTRUCT(Blueprintable, BlueprintType)
 struct FHexCell
 {
 	GENERATED_BODY()
@@ -57,16 +57,16 @@ struct FHexCell
 	TArray<FVector> Vertices {}; // Not public
 	TArray<int32> Triangles {}; // Not public
 	
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FVector Location = FVector::ZeroVector;
 	
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FIntVector HexCoord = FIntVector::ZeroValue;
 	
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	int SectionID = 0;
 	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TEnumAsByte<ETerrainType> Type = Grassland;
 
 	FHexCell() = default;
@@ -87,7 +87,7 @@ struct FHexCell
 			Triangles.Add(VertexIndex + 1);
 		}
 	}
-
+	
 	static size_t Hash(const int Q, const int R)
 	{
 		return HashCombine(Q, R);

@@ -13,8 +13,7 @@ AHexGrid::AHexGrid()
 	ProceduralMesh->SetupAttachment(RootComponent);
 
 	const FHexMetrics Metrics;
-	int Left = 0, Right = 2, Top = 0, Bottom = 2;
-	// int Left = 0, Right = 6, Top = 0, Bottom = 4;
+	int Left = -3, Right = 3, Top = -2, Bottom = 2;
 	for (int r = Top, i = 0; r <= Bottom; r++)
 	{
 		int ROffset = floor(r/2.0f);
@@ -61,7 +60,7 @@ void AHexGrid::BeginPlay()
 
 void AHexGrid::ApplyMaterialsToTerrain() const
 {
-	int Left = 0, Right = 2, Top = 0, Bottom = 2;
+	int Left = -3, Right = 3, Top = -2, Bottom = 2;
 	for (int r = Top, i = 0; r <= Bottom; r++)
 	{
 		int ROffset = floor(r/2.0f);
